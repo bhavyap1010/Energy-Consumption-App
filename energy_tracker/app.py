@@ -1,9 +1,9 @@
-from flask import Flask, request, render_template
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///energy.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///energy_consumption.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 class ApplianceLog(db.Model):
@@ -11,10 +11,6 @@ class ApplianceLog(db.Model):
     appliance_name = db.Column(db.String(100), nullable=False)
     hours_of_use = db.Column(db.Float, nullable=False)
     wattage = db.Column(db.Float, nullable=False)
-    date_logged = db.Column(db.Date, nullable=False)  # Date field
-
-    def __repr__(self):
-        return f"ApplianceLog('{self.appliance_name}', '{self.hours_of_use}', '{self.wattage}', '{self.date_logged}')"
 
 @app.route('/')
 def index():
@@ -23,23 +19,16 @@ def index():
 @app.route('/submit', methods=['POST'])
 def submit():
     appliance_name = request.form['appliance_name']
-    hours_of_use = float(request.form['hours_of_use'])
-    wattage = float(request.form['wattage'])
+    hours_of_use = request.form['hours_of_use']
+    wattage = request.form['wattage']
     
-    # Convert the date from string to datetime object
-    date_logged_str = request.form['date_logged']
-    date_logged = datetime.strptime(date_logged_str, '%Y-%m-%d').date()  # Convert to Python date object
-
-    # Create a new ApplianceLog entry
-    new_log = ApplianceLog(appliance_name=appliance_name, hours_of_use=hours_of_use, wattage=wattage, date_logged=date_logged)
-
-    try:
-        db.session.add(new_log)
-        db.session.commit()
-        return "Log submitted successfully!"
-    except Exception as e:
-        db.session.rollback()  # Rollback if there's an error
-        return f"An error occurred: {str(e)}", 500
+    new_log = ApplianceLog(appliance_name=appliance_name, hours_of_use=hours_of_use, wattage=wattage)
+    db.session.add(new_log)
+    db.session.commit()
+    
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
+    with app.app_context():  # Ensure this is inside the application context
+        db.create_all()  # Create database tables
     app.run(debug=True)
