@@ -17,20 +17,24 @@ class ApplianceLog(db.Model):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        appliance_name = request.form['appliance_name']
-        hours_of_use = request.form['hours_of_use']
-        wattage = request.form['wattage']
-        energy_consumption = round(float(hours_of_use) * (float(wattage) / 1000), 2)  # kWh calculation
-        sustainability_tip = request.form.get('sustainability_tip', None)
+        try:
+            appliance_name = request.form['appliance_name']
+            hours_of_use = request.form['hours_of_use']
+            wattage = request.form['wattage']
+            energy_consumption = round(float(hours_of_use) * (float(wattage) / 1000), 2)  # kWh calculation
+            sustainability_tip = request.form.get('sustainability_tip', None)
 
-        new_log = ApplianceLog(appliance_name=appliance_name, 
-                                hours_of_use=hours_of_use, 
-                                wattage=wattage, 
-                                energy_consumption=energy_consumption, 
-                                sustainability_tip=sustainability_tip)
-        db.session.add(new_log)
-        db.session.commit()
-        return redirect(url_for('logs'))
+            new_log = ApplianceLog(appliance_name=appliance_name, 
+                                    hours_of_use=hours_of_use, 
+                                    wattage=wattage, 
+                                    energy_consumption=energy_consumption, 
+                                    sustainability_tip=sustainability_tip)
+            db.session.add(new_log)
+            db.session.commit()
+            return redirect(url_for('logs'))
+        except Exception as e:
+            db.session.rollback()
+            return str(e), 500
     
     return render_template('index.html')
 
