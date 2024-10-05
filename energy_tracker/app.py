@@ -41,7 +41,12 @@ def index():
 @app.route('/logs')
 def logs():
     logs = ApplianceLog.query.all()
-    return render_template('logs.html', logs=logs)
+    
+    # Prepare data for visualization
+    appliance_names = [log.appliance_name for log in logs]
+    energy_consumptions = [log.energy_consumption for log in logs]
+
+    return render_template('logs.html', logs=logs, appliance_names=appliance_names, energy_consumptions=energy_consumptions)
 
 @app.route('/clear_logs', methods=['POST'])
 def clear_logs():
