@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logs</title>
+</head>
+<body>
+    <h1>Energy Consumption Logs</h1>
+    <table>
+        <tr>
+            <th>Appliance Name</th>
+            <th>Hours of Use</th>
+            <th>Wattage</th>
+            <th>Energy Consumption (kWh)</th>
+            <th>Sustainability Tip</th>
+        </tr>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.appliance_name }}</td>
+            <td>{{ log.hours_of_use }}</td>
+            <td>{{ log.wattage }}</td>
+            <td>{{ log.energy_consumption }}</td>
+            <td>{{ log.sustainability_tip }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <form action="{{ url_for('clear_logs') }}" method="post">
+        <button type="submit">Clear All Logs</button>
+    </form>
+    <a href="/">Go Back</a>
+</body>
+</html>
