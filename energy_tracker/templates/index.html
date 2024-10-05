@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Consumption Tracker</title>
+</head>
+<body>
+    <h1>Energy Consumption Tracker</h1>
+    <form action="/submit" method="POST">
+        <label for="appliance_name">Appliance Name:</label>
+        <input type="text" id="appliance_name" name="appliance_name" required><br><br>
+
+        <label for="hours_of_use">Hours of Use:</label>
+        <input type="number" id="hours_of_use" name="hours_of_use" required><br><br>
+
+        <label for="wattage">Wattage:</label>
+        <input type="number" id="wattage" name="wattage" required><br><br>
+
+        <label for="date_logged">Date Logged (optional):</label>
+        <input type="date" id="date_logged" name="date_logged"><br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
