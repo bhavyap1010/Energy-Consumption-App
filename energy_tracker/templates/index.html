@@ -1,28 +1,56 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Energy Consumption Tracker</title>
+    <style>
+        body {
+            background-color: #007BFF; /* Blue background */
+            color: white; /* White text */
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        input[type="text"], input[type="number"] {
+            margin: 10px 0;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #28A745; /* Green button */
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+    </style>
 </head>
 <body>
     <h1>Energy Consumption Tracker</h1>
-    <form method="POST" action="/submit">
+    <form action="/submit" method="POST">
         <label for="appliance_name">Appliance Name:</label>
         <input type="text" id="appliance_name" name="appliance_name" required>
-    
+        
         <label for="hours_of_use">Hours of Use:</label>
         <input type="number" id="hours_of_use" name="hours_of_use" required>
-    
+
         <label for="wattage">Wattage:</label>
         <input type="number" id="wattage" name="wattage" required>
-    
-        <label for="date_logged">Date Logged:</label>
-        <input type="date" id="date_logged" name="date_logged" required>
-    
+
         <button type="submit">Submit</button>
     </form>
 </body>
-
 </html>
