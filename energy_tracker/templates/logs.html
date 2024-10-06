@@ -8,16 +8,29 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <style>
-        /* Additional styles for the header */
         .header-bar {
-            background-color: transparent; /* Make the header background transparent */
-            padding: 1rem; /* Add some padding */
-            margin-bottom: 20px; /* Space between header and dropdown */
+            background-color: transparent; 
+            padding: 1rem; 
+            margin-bottom: 20px; 
         }
         .header-bar h5 {
-            margin: 0; /* Center the text without margin */
-            text-align: center; /* Center the header text */
-            color: inherit; /* Ensure the text color inherits from body */
+            margin: 0; 
+            text-align: center; 
+            color: inherit; 
+        }
+        #scoreboard {
+            background-color: #252a2f;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #achievements {
+            margin-top: 20px;
+        }
+        #achievementsList {
+            list-style-type: none; /* This removes the bullets */
+            padding: 0; /* Optional: Removes padding around the list */
         }
     </style>
 </head>
@@ -43,9 +56,16 @@
     <div class="container mt-5">
         <h1 class="text-center mb-4">Energy Consumption Logs</h1>
 
+        <!-- Scoreboard for Gamification -->
+        <div id="scoreboard">
+            <h4>Your Score: <span id="userScore">0</span></h4>
+            <p>Achievements:</p>
+            <button id="toggleAchievements" class="btn btn-secondary">Show/Hide Achievements</button>
+            <ul id="achievementsList" style="display:none;"></ul>
+        </div>
+
         <canvas id="energyChart" width="400" height="200"></canvas>
 
-        <!-- Dropdown for selecting chart type -->
         <div class="text-center mb-4">
             <label for="chartType">Select Chart Type:</label>
             <select id="chartType" class="form-control w-25 mx-auto">
@@ -54,12 +74,10 @@
             </select>
         </div>
 
-        <!-- Sleek header bar for displaying logs -->
         <div class="header-bar d-flex justify-content-center align-items-center mb-4">
             <button id="toggleLogs" class="btn btn-primary ml-3">Show/Hide Logs</button>
         </div>
 
-        <!-- Logs Table -->
         <div id="logsTable" style="display: none; margin-top: 20px;">
             <table class="table table-striped">
                 <thead>
@@ -82,7 +100,6 @@
                 </tbody>
             </table>
 
-            <!-- Clear All Logs Button -->
             <form id="energyForm" action="{{ url_for('clear_logs') }}" method="post" class="text-center">
                 <button type="submit" class="btn btn-danger">Clear All Logs</button>
             </form>
@@ -100,12 +117,10 @@
                 document.body.classList.add('bg-dark', 'text-white');
                 document.querySelectorAll('.navbar').forEach(nav => nav.classList.add('navbar-dark', 'bg-dark'));
                 document.querySelectorAll('table').forEach(table => table.classList.add('table-dark'));
-                document.querySelectorAll('.header-bar h5').forEach(h => h.style.color = 'white'); // Change header text color
             } else {
                 document.body.classList.remove('bg-dark', 'text-white');
                 document.querySelectorAll('.navbar').forEach(nav => nav.classList.remove('navbar-dark', 'bg-dark'));
                 document.querySelectorAll('table').forEach(table => table.classList.remove('table-dark'));
-                document.querySelectorAll('.header-bar h5').forEach(h => h.style.color = 'black'); // Change header text color
             }
         }
 
@@ -117,22 +132,16 @@
             const currentMode = document.body.classList.contains('bg-dark');
             const newMode = !currentMode;
 
-            // Toggle dark mode
             applyDarkMode(newMode);
-
-            // Save preference to localStorage
             localStorage.setItem('darkMode', newMode);
-            updateChartLegendColors(newMode);
         });
 
-        // Debug output
-        const applianceNames = {{ appliance_names|tojson }};
-        const energyConsumptions = {{ energy_consumptions|tojson }};
+        const applianceNames = {{ appliance_names|tojson|safe }};
+        const energyConsumptions = {{ energy_consumptions|tojson|safe }};
         const ctx = document.getElementById('energyChart').getContext('2d');
         let energyChart;
 
         function renderChart(chartType) {
-            // Destroy existing chart instance before creating a new one
             if (energyChart) {
                 energyChart.destroy();
             }
@@ -162,7 +171,7 @@
                     plugins: {
                         legend: {
                             labels: {
-                                color: isDarkMode ? 'white' : 'black' // Change legend color based on mode
+                                color: isDarkMode ? 'white' : 'black'
                             }
                         }
                     }
@@ -170,47 +179,74 @@
             });
         }
 
-        // Function to update legend color based on mode
-        function updateChartLegendColors(isDarkMode) {
-            if (energyChart) {
-                energyChart.options.plugins.legend.labels.color = isDarkMode ? 'white' : 'black';
-                energyChart.update();
-            }
-        }
-
-        // Initial render with bar chart
         renderChart('bar');
 
-        // Event listener for chart type change
         document.getElementById('chartType').addEventListener('change', function() {
             const selectedType = this.value;
             renderChart(selectedType);
         });
 
-        // JavaScript to handle form submission and feedback display
         document.getElementById('energyForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
-
-            // Simulate a successful submission (you can replace this with actual submission logic)
-            setTimeout(function() {
-                document.getElementById('feedback').style.display = 'block'; // Show success message
-                document.getElementById('energyForm').reset(); // Reset the form
-            }, 500); // Simulate a delay for user experience
+            event.preventDefault();
+            document.getElementById('feedback').style.display = 'block';
+            document.getElementById('energyForm').reset();
         });
 
-        // Toggle logs visibility
         document.getElementById('toggleLogs').addEventListener('click', function() {
             const logsTable = document.getElementById('logsTable');
             if (logsTable.style.display === 'none') {
-                logsTable.style.display = 'block'; // Show logs
+                logsTable.style.display = 'block';
             } else {
-                logsTable.style.display = 'none'; // Hide logs
+                logsTable.style.display = 'none';
             }
         });
+
+        // Toggle Achievements
+        document.getElementById('toggleAchievements').addEventListener('click', function() {
+            const achievementsList = document.getElementById('achievementsList');
+            if (achievementsList.style.display === 'none') {
+                achievementsList.style.display = 'block';
+            } else {
+                achievementsList.style.display = 'none';
+            }
+        });
+
+        // Gamification Logic
+        let userScore = 0;
+        const achievements = [];
+
+        // Function to update user score based on energy conservation
+        function updateScore(energyConsumption) {
+            if (energyConsumption < 1) {
+                userScore += 10; // Score for low consumption
+                achievements.push("Eco Warrior: Reduced consumption below 1 kWh!");
+            } else if (energyConsumption < 5) {
+                userScore += 5; // Score for moderate consumption
+                achievements.push("Energy Saver: Logged a moderate energy usage!");
+            } else {
+                userScore += 1; // Score for logging
+            }
+            document.getElementById('userScore').textContent = userScore;
+            updateAchievements();
+        }
+
+        function updateAchievements() {
+            const achievementsList = document.getElementById('achievementsList');
+            achievementsList.innerHTML = ""; // Clear existing list
+            achievements.forEach(ach => {
+                                const li = document.createElement('li');
+                li.textContent = ach;
+                achievementsList.appendChild(li);
+            });
+        }
+
+        // Call this function with each energy consumption log
+        {% for log in logs %}
+        updateScore({{ log.energy_consumption }});
+        {% endfor %}
     </script>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
